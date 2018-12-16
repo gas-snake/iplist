@@ -96,7 +96,7 @@ def IpPoolInfo(IpPool,Gate,Mask,IpList,fn,sysname,interface,DescTxt):          #
     Ipbroad = IpPool.broadcast().strNormal()
     IpTotal = len(IpPool)
     WtYes = 'N'                                     #写入开关
-    for R in range(0,len(IpList)-1):                      #遍历主表
+    for R in range(0,len(IpList)):                      #遍历主表
         if IpList[R][0] == IpNet:
             WtYes = 'Y'                             #如果找到该段IP的开头，则打开写入开关
         if WtYes == 'Y':
@@ -122,6 +122,7 @@ def IpPoolInfo(IpPool,Gate,Mask,IpList,fn,sysname,interface,DescTxt):          #
         if IpList[R][0] == Ipbroad:          #如果找到该段IP的结尾，则关闭写入开关
             WtYes = 'N'
     return  IpList
+
 def IpStaticInfo(Ip1,Ip2,IpList,fn,interface,DescTxt):          #把Static刷入主表
     IpNet = Ip1
     Ipbroad = Ip2
@@ -187,12 +188,17 @@ print (LogFileList)
 for LogFile in LogFileList:
 
     folines = ofile.OpenFile(LogFile,'l')   #读取脚本到folines#
-    Res=LOGsearch_HuaWei.LOGsearch(folines) #把脚本丢给LOGsearch取出IP信息
+    Res=LOGsearch_HuaWei.IpSearch(folines) #把脚本丢给LOGsearch取出IP信息
     print (Res)
+    # print("1111111111111qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq11111111111")
+    # print(Res[1])
 
     #把IPpool刷入主表
     for pool in Res[1]:
+        # print("ssssssssssssssssssss",pool )
         IpPoolInfo(IPy.IP(pool[0]+"/"+pool[1],make_net=True),pool[0],pool[1],IpListMain,pool[3],Res[0][0],pool[2],'')
+    # print("1111111111111qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq11111111111")
+    # print (IpListMain)    
     #把IPinter刷入主表 IpPoolInfo(IpPool,Gate,Mask,IpList,fn,sysname,interface,DescTxt): 
     for inter in Res[2]:
         IpPoolInfo(IPy.IP(inter[0]+"/"+inter[1],make_net=True),inter[0],inter[1],IpListMain,inter[4],Res[0][0],inter[2],inter[3])
@@ -219,8 +225,11 @@ XlsData=[]
 #在整合表写入表头
 XlsData.append(XlsTitle)
 #拼合主表
+# print("111111111111111111111111")
+# print(IpListMain)
 XlsData=XlsData+IpListMain
 #给文件名加绝对路径
 XlsName=os.path.join(Fpath, XlsName) 
 #写入文件
 ofile.XlsWrite(XlsData,XlsName)
+

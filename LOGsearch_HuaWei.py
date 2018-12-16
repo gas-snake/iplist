@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #coding=utf-8 
-import IPy
+
 #在列表中查找某个值，反回下标，找不到返回-1
 def  field_index(txt=[],field=''):
 	try:
@@ -9,7 +9,7 @@ def  field_index(txt=[],field=''):
 	except Exception as  e:
 		return -1
 
-def LOGsearch(LogFile=[]):
+def IpSearch(LogFile=[]):
 #-----------------------------------
     SeRasult=[]  #IP信息总表
     DEVinfo=[] #设备信息    
@@ -181,4 +181,65 @@ def LOGsearch(LogFile=[]):
     SeRasult.append(IPinter)
     SeRasult.append(DHCPstatic)
     SeRasult.append(IPstatic)
+    return SeRasult
+
+def PortSearch(LogFile=[]):
+#-----------------------------------
+    SeRasult=[]  #信息总表
+    sysname = "" #设备名称  
+    interface = ""  #变量 端口
+    description = ""#变量 标签
+    
+    DHCPstatic = [] #DHCP数据 ip,端口，vlan,desc，行号
+    IPstatic=[] #静态路由信息 起始IP，终止IP，端口，desc，行号
+#-----------------------------------   
+
+# fo = open(LogFileName+".log", "rb")
+# folines = fo.readlines() 
+    for foline in LogFile:
+        # foline = foline.decode("utf_8").strip("\r\n")
+        foline = foline.strip("\r\n")
+#    foline = foline.strip("\r\n")
+        sum+=1 
+        if foline.startswith('sysname')== True: #判断是否为sysname开头
+            lines=foline.split(' ')
+            sysname = lines[1].strip("\r\n")
+        elif foline.startswith('interface')== True: #判断是否为interface开头
+            descOn = ""
+#        portOn = "1"
+            lines=foline.split(' ')
+            if lines[1].find(".") == -1:      #端口名称中没有.即为主端口，可以采名称和标签
+            
+#    	print(sum,lines[1],end = '')
+
+                interface = lines[1].strip("\r\n")   #得到端口名称
+                print(interface)
+                descOn = "1"                        #如果端口中没有. 可以采desc，否则不采  
+                description = ""  
+                             #为防采错，在此处把DESC清空
+        elif foline.startswith(' description')== True:   #否则判断是否为description开头
+            lines=foline.split(' ') 
+            if descOn =="1":
+                description = foline.replace(' description','')
+                print(description)
+        elif foline.strip("\r\n").startswith(' eth-trunk')== True:   #否则判断是否为 eth-trunk开头
+            eth = foline.strip("\r\n")
+            print(eth)
+        elif foline.strip("\r\n").startswith(' shutdown')== True:#否则判断是否为 shut
+            ports = foline.strip("\r\n")
+            print(ports)
+        elif foline.strip("\r\n").startswith('#')== True:   #否则判断是否为 #结尾
+    #    lines=foline.split(' ') 
+            print(foline.strip("\r\n"))
+            print(sum,sysname,interface,description,eth,ports)
+            XlsWriteRow(sum,sysname,interface,description,eth,ports)
+            eth = ""
+            ports = ""
+        # XlsWriteRow(sum,sysname,interface,description,"")
+print("*************************")
+
+    #elif foline.strip("\r\n").startswith(' eth-trunk')== True:   #否则判断是否为 eth-trunk开头
+    #    XlsWriteRow(sum,sysname,interface,description,foline)
+print(Fpath)
+
     return SeRasult
