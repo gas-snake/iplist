@@ -184,62 +184,95 @@ def IpSearch(LogFile=[]):
     return SeRasult
 
 def PortSearch(LogFile=[]):
-#-----------------------------------
+#-----------变量定义------------------------
     SeRasult=[]  #信息总表
+    temp=[]       #暂存一行信息
+    sn= 0         #行号
     sysname = "" #设备名称  
     interface = ""  #变量 端口
+    intertype = ""  #变量 端口类型 主端口，sub端口
     description = ""#变量 标签
-    
-    DHCPstatic = [] #DHCP数据 ip,端口，vlan,desc，行号
-    IPstatic=[] #静态路由信息 起始IP，终止IP，端口，desc，行号
-#-----------------------------------   
+    interip = ""    #变量  ip
+    intermask = ""  #变量 mask
+    eth = "" #物理端口对应的eth-trunk
+    status = ""    #物理端口状态
+    portOn = "0"
+    # SubInterW = "N"  #是否保存子端口
+    #Mode值为M或A,分别为主端口和全端口
+
 
 # fo = open(LogFileName+".log", "rb")
 # folines = fo.readlines() 
     for foline in LogFile:
         # foline = foline.decode("utf_8").strip("\r\n")
-        foline = foline.strip("\r\n")
-#    foline = foline.strip("\r\n")
-        sum+=1 
+        foline = foline.rstrip().strip("\r\n")
+        sn+=1 
         if foline.startswith('sysname')== True: #判断是否为sysname开头
             lines=foline.split(' ')
             sysname = lines[1].strip("\r\n")
         elif foline.startswith('interface')== True: #判断是否为interface开头
-            descOn = ""
-#        portOn = "1"
+            # descOn = ""
+            portOn = "1"   #是interface开头则打开写入开关
             lines=foline.split(' ')
-            if lines[1].find(".") == -1:      #端口名称中没有.即为主端口，可以采名称和标签
-            
+            if lines[1].find(".") != -1:      #端口名称中有.即为子端口,tpye里写入sub
+                intertype = "sub"
 #    	print(sum,lines[1],end = '')
-
-                interface = lines[1].strip("\r\n")   #得到端口名称
-                print(interface)
-                descOn = "1"                        #如果端口中没有. 可以采desc，否则不采  
-                description = ""  
+                # SubInterW = 'Y'           #是主端口，可以写入      
+            interface = lines[1].strip("\r\n")   #得到端口名称
+            # print(interface)
+                # descOn = "1"                        #如果端口中没有. 可以采desc，否则不采  
+                # description = ""  
                              #为防采错，在此处把DESC清空
         elif foline.startswith(' description')== True:   #否则判断是否为description开头
             lines=foline.split(' ') 
-            if descOn =="1":
-                description = foline.replace(' description','')
-                print(description)
+            description = foline.replace(' description','')
+            # if descOn =="1":
+            #     description = foline.replace(' description','')
+            #     print(description)
+        elif foline.startswith(' ip address')== True:   #否则判断是否为ip address开头
+            lines=foline.split(' ') 
+            interip =lines[3]
+            intermask =  lines[4]
         elif foline.strip("\r\n").startswith(' eth-trunk')== True:   #否则判断是否为 eth-trunk开头
             eth = foline.strip("\r\n")
-            print(eth)
+            # print(eth)
         elif foline.strip("\r\n").startswith(' shutdown')== True:#否则判断是否为 shut
-            ports = foline.strip("\r\n")
-            print(ports)
+            status = foline.strip("\r\n")
+            # print(status)
         elif foline.strip("\r\n").startswith('#')== True:   #否则判断是否为 #结尾
     #    lines=foline.split(' ') 
-            print(foline.strip("\r\n"))
-            print(sum,sysname,interface,description,eth,ports)
-            XlsWriteRow(sum,sysname,interface,description,eth,ports)
-            eth = ""
-            ports = ""
+            # print(foline.strip("\r\n"))
+            # print(sn,sysname,interface,intertype,description,intermask,interip,eth,status)
+            # if SubInterW == 'Y' :       #结尾的时候，如果是主端口则写入                  
+            # XlsWriteRow(sn,sysname,interface,description,eth,ports)
+            #拼成一行信息
+            temp.append(sn)
+            temp.append(sysname)
+            temp.append(interface)
+            temp.append(intertype)
+            temp.append(description)
+            temp.append(interip)
+            temp.append(intermask)
+            temp.append(eth)
+            temp.append(status) 
+            if portOn == '1' :
+                #把该行信息写入信息表
+                SeRasult.append(temp)
+            #写入完成信息清零------------------------
+            interface = ""
+            intertype = ""
+            description = ""
+            interip = ""
+            intermask = "" 
+            eth = ""                     
+            status = ""
+            temp = []
+            portOn = '0'
+            
         # XlsWriteRow(sum,sysname,interface,description,"")
-print("*************************")
+    print("*************************")
 
     #elif foline.strip("\r\n").startswith(' eth-trunk')== True:   #否则判断是否为 eth-trunk开头
-    #    XlsWriteRow(sum,sysname,interface,description,foline)
-print(Fpath)
+    #    XlsWriteRow(sum,sysname,interface,description,foline
 
     return SeRasult

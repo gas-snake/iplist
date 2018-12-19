@@ -5,6 +5,7 @@ import os
 import xlwt
 import re
 import ofile
+import LOGsearch_HuaWei
 wbk = xlwt.Workbook()
 sheet1 = wbk.add_sheet('sheet 1')
 sum=0           #变量 行号
@@ -18,7 +19,12 @@ eth = "" #变量 Eth
 ports = "" #变量 端口状态
 descOn = ""     #状态，是否提取DESC
 portOn = ""    #判断是否进行端口段
-LogFileName = "PortInfo"  #文件名
+PortListMain =[]  # 端口信息表
+LogFileName = "PortInfo.xls"  #文件名
+
+#---------表头--------------------------  
+header = ['脚本行号','设备名称','端口名称','端口类型','端口描述','ip地址','掩码','所属Eth-Trunk','端口状态']
+PortListMain.append(header)  
 
 Fpath=os.path.dirname(os.path.realpath(__file__))
 Lpath=os.path.join(Fpath,'LogFile')
@@ -72,9 +78,13 @@ print (LogFileList)
 #从LOG文件列表中巡环取出文件
 for LogFile in LogFileList:
     folines = ofile.OpenFile(LogFile,'l')   #读取脚本到folines#
+    Res=LOGsearch_HuaWei.PortSearch(folines)  #分析脚本形成信息表（针对单个脚本文件）
+    PortListMain = PortListMain + Res        #把信息表拼接入主表
+    # PortListMain.append(LOGsearch_HuaWei.PortSearch(folines)) #把脚本丢给LOGsearch取出IP信息
+    # print(Res)
 # fo = open(LogFileName+".log", "rb")
 # folines = fo.readlines() 
-    for foline in folines:
+"""     for foline in folines:
         # foline = foline.decode("utf_8").strip("\r\n")
         foline = foline.strip("\r\n")
 #    foline = foline.strip("\r\n")
@@ -112,12 +122,16 @@ for LogFile in LogFileList:
             print(sum,sysname,interface,description,eth,ports)
             XlsWriteRow(sum,sysname,interface,description,eth,ports)
             eth = ""
-            ports = ""
+            ports = "" """
         # XlsWriteRow(sum,sysname,interface,description,"")
 print("*************************")
 
     #elif foline.strip("\r\n").startswith(' eth-trunk')== True:   #否则判断是否为 eth-trunk开头
     #    XlsWriteRow(sum,sysname,interface,description,foline)
 print(Fpath)
-
+# print (PortListMain)
+#给文件名加绝对路径
+XlsName=os.path.join(Fpath, LogFileName) 
+#写入文件
+ofile.XlsWrite(PortListMain,XlsName)
 # wbk.save(os.path.join(Fpath,LogFileName+'端口.xls')) 
