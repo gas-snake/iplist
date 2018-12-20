@@ -35,9 +35,10 @@ def IpSearch(LogFile=[]):
         if foline.startswith('sysname')== True: #判断是否为sysname开头
             lines=foline.split(' ')
             sysname = lines[1]
+            DEVinfo.append(sysname)
         elif foline.startswith('router id ')== True:#判断是否为router id开头
             router_id=foline.replace('router id ','')
-            DEVinfo.append(sysname)
+
             DEVinfo.append(router_id)
         elif foline.startswith('vlan ') == True  :#判断是否为vlan开头
             lines=foline.split(' ')
@@ -181,6 +182,10 @@ def IpSearch(LogFile=[]):
     SeRasult.append(IPinter)
     SeRasult.append(DHCPstatic)
     SeRasult.append(IPstatic)
+    # print('DEVinfo',DEVinfo)
+    # print('IPpool',IPpool)
+    # print('IPinter',IPinter)
+
     return SeRasult
 
 def PortSearch(LogFile=[]):

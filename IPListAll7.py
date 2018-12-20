@@ -186,21 +186,26 @@ print (LogFileList)
 
 #从LOG文件列表中巡环取出文件
 for LogFile in LogFileList:
-
+    # print (LogFile)
     folines = ofile.OpenFile(LogFile,'l')   #读取脚本到folines#
     Res=LOGsearch_HuaWei.IpSearch(folines) #把脚本丢给LOGsearch取出IP信息
-    print (Res)
+    # print (Res)
     # print("1111111111111qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq11111111111")
     # print(Res[1])
 
     #把IPpool刷入主表
+    # print("res0",Res[0])
+    # print("res1",Res[1])
+    # print("res2",Res[2])
     for pool in Res[1]:
         # print("ssssssssssssssssssss",pool )
         IpPoolInfo(IPy.IP(pool[0]+"/"+pool[1],make_net=True),pool[0],pool[1],IpListMain,pool[3],Res[0][0],pool[2],'')
     # print("1111111111111qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq11111111111")
     # print (IpListMain)    
     #把IPinter刷入主表 IpPoolInfo(IpPool,Gate,Mask,IpList,fn,sysname,interface,DescTxt): 
+    #sysname来自Res[0][0]，如脚本配置问题这里没有写router id sysname侧会无法引用导致错误
     for inter in Res[2]:
+        # print ("inter==",inter)
         IpPoolInfo(IPy.IP(inter[0]+"/"+inter[1],make_net=True),inter[0],inter[1],IpListMain,inter[4],Res[0][0],inter[2],inter[3])
     #把static-user刷入主表IpStaticInfo(Ip1,Ip2,IpList,fn,interface,DescTxt)
     print ('++dhcp++',Res[3])
