@@ -3,6 +3,7 @@
 import os
 import sys
 import xlwt
+import xlrd
 import codecs
 import cchardet
 
@@ -63,6 +64,7 @@ def OpenFile(filename,filerow='l'):
 #==================================================================
 #excel整体写入函数，参数，输入列表，保存文件名
 def XlsWrite(Xlsdata=[],XlsFile='test.xls'):
+    # print(Xlsdata)
     wbk = xlwt.Workbook()
     sheet1 = wbk.add_sheet('sheet 1')
     XlsRow=0
@@ -76,5 +78,19 @@ def XlsWrite(Xlsdata=[],XlsFile='test.xls'):
         XlsRow = XlsRow + 1        #行数加1
 
     wbk.save(XlsFile)
+
+def XlsReadTableAll(XlsFile='',SheetIndex=0,StartRow = 1):
+	#读取EXCEL文件
+    wbk = xlrd.open_workbook(XlsFile)
+	#读取一张表
+    table1 = wbk.sheet_by_index(SheetIndex)
+	#获取该表总行数
+    Rows = table1.nrows
+	#定义最终结果集
+    ShList = []
+	#获取该表所有内容
+    for i in range(StartRow-1,Rows):
+        ShList.append(table1.row_values(i)) 
+    return ShList
 
 
